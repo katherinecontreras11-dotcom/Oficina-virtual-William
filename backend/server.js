@@ -17,7 +17,10 @@ const allowedOrigins = (() => {
       process.env.FRONTEND_URL // URL específica si se proporciona
     ].filter(Boolean)
   }
-  return ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:5000']
+  return [
+    /^http:\/\/localhost:\d+$/,
+    /^http:\/\/127\.0\.0\.1:\d+$/
+  ]
 })()
 
 app.use(cors({

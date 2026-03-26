@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useApp } from '../../context/useApp'
 import { FileText, Upload, Download, Trash2, X, Plus, AlertCircle } from 'lucide-react'
+import { getSignedPdfLinkAPI } from '../../services/apiService'
 import '../client/Dashboard.css'
 
 const typeColor = { PDF: 'danger', DOCX: 'info', IMG: 'success', XLSX: 'warning' }
@@ -71,21 +72,24 @@ export default function ClientDocuments() {
     setShowModal(false)
   }
 
-  const downloadDocument = (doc) => {
+  const downloadDocument = async (doc) => {
     try {
-      const downloadUrl = doc.url || doc.content
+      let downloadUrl = doc.url || doc.content
+      if (doc.publicId) {
+        try {
+          const signed = await getSignedPdfLinkAPI(doc.publicId, false)
+          downloadUrl = signed?.url || downloadUrl
+        } catch (error) {
+          console.error('[ClientDocuments] Error getting signed URL:', error.message)
+        }
+      }
+
       if (!downloadUrl) {
         alert('Este documento no tiene contenido para descargar')
         return
       }
 
-      const link = document.createElement('a')
-      link.href = downloadUrl
-      link.download = doc.name
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      alert(`📥 Documento "${doc.name}" descargado exitosamente`)
+      window.location.assign(downloadUrl)
     } catch (error) {
       console.error('Error al descargar:', error)
       alert('Error al descargar el documento')

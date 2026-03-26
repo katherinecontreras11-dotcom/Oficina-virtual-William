@@ -30,9 +30,9 @@ export default function Footer() {
           <div className="footer-col">
             <h4 className="footer-heading">Contacto</h4>
             <ul className="footer-contact">
-              <li><Mail size={16} /> info@wilawfirm.com</li>
-              <li><Phone size={16} /> +1 (555) 123-4567</li>
-              <li><MapPin size={16} /> Av. Principal #100</li>
+              <li><Mail size={16} /> lipwone@gmail.com </li>
+              <li><Phone size={16} /> +51 925 651 248 </li>
+              <li><MapPin size={16} /> Jr. Mariscal Cáceres N° 1177 - Huamanga, Ayacucho </li>
             </ul>
           </div>
         </div>

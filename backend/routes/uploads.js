@@ -1,7 +1,7 @@
 import express from 'express'
 import multer from 'multer'
 import { verifyToken } from '../middleware/auth.js'
-import { uploadPdfBuffer } from '../utils/cloudinary.js'
+import { uploadPdfBuffer, getSignedPdfUrl } from '../utils/cloudinary.js'
 
 const router = express.Router()
 const upload = multer({
@@ -35,6 +35,25 @@ router.post('/pdf', verifyToken, upload.single('file'), async (req, res) => {
   } catch (error) {
     console.error('[Uploads] Error uploading PDF:', error.message)
     return res.status(500).json({ error: 'Error subiendo archivo a la nube' })
+  }
+})
+
+router.get('/pdf-link', verifyToken, async (req, res) => {
+  try {
+    const { publicId, attachment } = req.query
+
+    if (!publicId) {
+      return res.status(400).json({ error: 'publicId es requerido' })
+    }
+
+    const signedUrl = getSignedPdfUrl(publicId, {
+      attachment: String(attachment).toLowerCase() === 'true'
+    })
+
+    return res.json({ success: true, url: signedUrl })
+  } catch (error) {
+    console.error('[Uploads] Error generating signed PDF URL:', error.message)
+    return res.status(500).json({ error: 'Error generando enlace de documento' })
   }
 })
 

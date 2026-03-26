@@ -1,14 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary'
 import streamifier from 'streamifier'
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-})
-
-const CLOUDINARY_FOLDER = process.env.CLOUDINARY_FOLDER || 'wil-law-firm/pdfs'
-
 const ensureCloudinaryEnv = () => {
   const missing = []
   if (!process.env.CLOUDINARY_CLOUD_NAME) missing.push('CLOUDINARY_CLOUD_NAME')
@@ -20,20 +12,30 @@ const ensureCloudinaryEnv = () => {
   }
 }
 
+const configureCloudinary = () => {
+  ensureCloudinaryEnv()
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  })
+}
+
 export const uploadPdfBuffer = (buffer, originalName = 'document.pdf') => {
   return new Promise((resolve, reject) => {
     try {
-      ensureCloudinaryEnv()
+      configureCloudinary()
     } catch (error) {
       return reject(error)
     }
 
+    const folder = process.env.CLOUDINARY_FOLDER || 'wil-law-firm/pdfs'
     const publicBase = originalName.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9-_]/g, '_')
     const publicId = `${Date.now()}-${publicBase}`
 
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        folder: CLOUDINARY_FOLDER,
+        folder,
         resource_type: 'raw',
         public_id: publicId,
         format: 'pdf'
@@ -51,8 +53,25 @@ export const uploadPdfBuffer = (buffer, originalName = 'document.pdf') => {
 export const deleteFromCloudinary = async (publicId) => {
   if (!publicId) return
   try {
+    configureCloudinary()
     await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' })
   } catch (error) {
     console.error('[Cloudinary] Error deleting file:', error.message)
   }
+}
+
+export const getSignedPdfUrl = (publicId, { attachment = false, expiresInSeconds = 3600 } = {}) => {
+  if (!publicId) {
+    throw new Error('publicId es requerido para firmar la URL')
+  }
+
+  configureCloudinary()
+  const expiresAt = Math.floor(Date.now() / 1000) + expiresInSeconds
+
+  return cloudinary.utils.private_download_url(publicId, '', {
+    resource_type: 'raw',
+    type: 'upload',
+    attachment,
+    expires_at: expiresAt
+  })
 }

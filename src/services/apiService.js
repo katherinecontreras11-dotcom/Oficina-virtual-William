@@ -157,6 +157,9 @@ export const uploadPDFAPI = async (file) => {
   return data
 }
 
+export const getSignedPdfLinkAPI = (publicId, attachment = false) =>
+  apiCall(`/api/uploads/pdf-link?publicId=${encodeURIComponent(publicId)}&attachment=${attachment}`, 'GET')
+
 export const addClientCaseDocumentAPI = (caseId, doc) =>
   apiCall(`/api/cases/${caseId}/client-documents`, 'POST', doc)
 

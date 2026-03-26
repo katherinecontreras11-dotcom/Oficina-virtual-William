@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useApp } from '../../context/useApp'
 import { Briefcase, Search, Filter, Upload, FileText, Download, Trash2, Plus, X, AlertCircle } from 'lucide-react'
+import { getSignedPdfLinkAPI } from '../../services/apiService'
 import '../client/Dashboard.css'
 
 const statusBadge = (s) => s === 'Resuelto' ? 'success' : s === 'Activo' || s === 'En Curso' ? 'warning' : 'info'
@@ -42,21 +43,24 @@ export default function ClientCases() {
     e.target.value = ''
   }
 
-  const downloadDocument = (doc) => {
+  const downloadDocument = async (doc) => {
     try {
-      const downloadUrl = doc.url || doc.content
+      let downloadUrl = doc.url || doc.content
+      if (doc.publicId) {
+        try {
+          const signed = await getSignedPdfLinkAPI(doc.publicId, false)
+          downloadUrl = signed?.url || downloadUrl
+        } catch (error) {
+          console.error('[ClientCases] Error getting signed URL:', error.message)
+        }
+      }
+
       if (!downloadUrl) {
         alert('Este documento no tiene contenido para descargar')
         return
       }
 
-      const link = document.createElement('a')
-      link.href = downloadUrl
-      link.download = doc.name
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      alert(`📥 Documento "${doc.name}" descargado exitosamente`)
+      window.location.assign(downloadUrl)
     } catch (error) {
       console.error('Error al descargar:', error)
       alert('Error al descargar el documento')

@@ -1,4 +1,4 @@
-# Phase 5: Testing Instructions
+![alt text](image.png)# Phase 5: Testing Instructions
 
 ## Pre-Testing Setup
 

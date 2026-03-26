@@ -68,7 +68,7 @@ export const getSignedPdfUrl = (publicId, { attachment = false, expiresInSeconds
   configureCloudinary()
   const expiresAt = Math.floor(Date.now() / 1000) + expiresInSeconds
 
-  return cloudinary.utils.private_download_url(publicId, '', {
+  return cloudinary.utils.private_download_url(publicId, 'pdf', {
     resource_type: 'raw',
     type: 'upload',
     attachment,

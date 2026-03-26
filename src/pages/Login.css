@@ -201,23 +201,6 @@
 }
 .login-switch button:hover { text-decoration: underline; }
 
-.login-demo-hint {
-  margin-top: var(--space-6);
-  padding: var(--space-4);
-  background: var(--info-light);
-  border-radius: var(--radius-md);
-  font-size: 0.8rem;
-  color: var(--neutral-700);
-  line-height: 1.5;
-}
-.login-demo-hint code {
-  font-weight: 700;
-  color: var(--primary-700);
-  background: rgba(26, 58, 92, 0.06);
-  padding: 1px 5px;
-  border-radius: 3px;
-}
-
 /* Tablets (1024px and below) */
 @media (max-width: 1024px) {
   .login-page {
@@ -325,16 +308,6 @@
     font-size: 16px;
   }
 
-  .login-demo-hint {
-    font-size: 0.75rem;
-    padding: var(--space-3);
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .login-demo-hint .credentials-table {
-    min-width: 320px;
-  }
 }
 
 /* Small phones (480px and below) */
@@ -407,13 +380,4 @@
     font-size: 0.8rem;
   }
 
-  .login-demo-hint {
-    font-size: 0.7rem;
-    padding: var(--space-2);
-    margin-top: var(--space-4);
-  }
-
-  .login-demo-hint code {
-    padding: 1px 3px;
-  }
 }

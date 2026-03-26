@@ -142,26 +142,6 @@ export default function Login() {
             </button>
           </p>
 
-          <div className="login-demo-hint">
-            <p><strong>Credenciales de Acceso:</strong></p>
-            <table className="credentials-table">
-              <thead>
-                <tr><th>Rol</th><th>Correo</th><th>Contraseña</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><span className="badge badge--info">Abogado</span></td>
-                  <td><code>admin@lex.com</code></td>
-                  <td><code>Admin2026</code></td>
-                </tr>
-                <tr>
-                  <td><span className="badge badge--success">Cliente</span></td>
-                  <td><code>cliente@wil.com</code></td>
-                  <td><code>Cliente2026</code></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
       </div>
     </div>

@@ -35,17 +35,21 @@ export default function Landing() {
         <div className="hero-bg" />
         <div className="container hero-content">
           <div className="hero-text">
-            <div className="hero-badge">
-              <BrandLogo className="hero-badge-logo" alt="Logo Wil Law Firm" />
-              <span>Oficina Virtual Jurídica</span>
+            <div className="hero-copy">
+              <div className="hero-badge">
+                <BrandLogo className="hero-badge-logo" alt="Logo Wil Law Firm" />
+                <span>Oficina Virtual Jurídica</span>
+              </div>
+              <div className="hero-headline">
+                <h1 className="hero-title">
+                  Justicia al alcance de <span className="hero-highlight">TODOS</span>
+                </h1>
+                <p className="hero-subtitle">
+                  Gestione sus trámites legales de forma segura, transparente y profesional
+                  desde cualquier dispositivo. Su equipo legal, siempre disponible.
+                </p>
+              </div>
             </div>
-            <h1 className="hero-title">
-              Justicia al alcance de <span className="hero-highlight">TODOS</span>
-            </h1>
-            <p className="hero-subtitle">
-              Gestione sus trámites legales de forma segura, transparente y profesional
-              desde cualquier dispositivo. Su equipo legal, siempre disponible.
-            </p>
             <div className="hero-actions">
               <Link to="/login" className="btn btn-accent">
                 Comenzar Ahora <ArrowRight size={18} />

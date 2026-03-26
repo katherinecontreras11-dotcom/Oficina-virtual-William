@@ -4,8 +4,33 @@
 
 const GLOBAL_KEY = 'wil_global_appointments'
 const BROADCAST_CHANNEL = 'wil_appointments_sync'
-const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin
-const SERVER_API = `${API_BASE_URL}/api/appointments`
+const configuredApiBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+const sameOriginApiBase = window.location.origin.replace(/\/$/, '')
+const prefersSameOriginFirst = import.meta.env.DEV
+const orderedCandidates = prefersSameOriginFirst
+  ? [sameOriginApiBase, configuredApiBase]
+  : [configuredApiBase, sameOriginApiBase]
+const apiBaseCandidates = [...new Set(orderedCandidates.filter(Boolean))]
+let activeApiBase = apiBaseCandidates[0] || sameOriginApiBase
+
+const buildServerApi = (base, path = '') => `${base}/api/appointments${path}`
+
+const fetchAppointmentsApi = async (path = '', options = {}) => {
+  const candidates = [activeApiBase, ...apiBaseCandidates.filter(base => base !== activeApiBase)]
+  let lastError = null
+
+  for (const base of candidates) {
+    try {
+      const response = await fetch(buildServerApi(base, path), options)
+      activeApiBase = base
+      return response
+    } catch (error) {
+      lastError = error
+    }
+  }
+
+  throw lastError
+}
 
 const statusFromApi = {
   pending: 'Pendiente',
@@ -98,7 +123,7 @@ const syncWithServer = async () => {
     const token = getAuthToken()
     if (!token) return
 
-    const response = await fetch(SERVER_API, {
+    const response = await fetchAppointmentsApi('', {
       headers: buildAuthHeaders()
     })
     const serverAppointments = await getAppointmentsFromResponse(response)
@@ -142,7 +167,7 @@ export const addAppointmentToStore = async (appointment) => {
     const token = getAuthToken()
     if (!token) return
 
-    const response = await fetch(SERVER_API, {
+    const response = await fetchAppointmentsApi('', {
       method: 'POST',
       headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(normalized)
@@ -166,7 +191,7 @@ export const updateAppointmentInStore = async (id, updatedData) => {
     const token = getAuthToken()
     if (!token) return
 
-    const response = await fetch(`${SERVER_API}/${id}`, {
+    const response = await fetchAppointmentsApi(`/${id}`, {
       method: 'PUT',
       headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({
@@ -196,7 +221,7 @@ export const deleteAppointmentFromStore = async (id) => {
     const token = getAuthToken()
     if (!token) return
 
-    const response = await fetch(`${SERVER_API}/${id}`, {
+    const response = await fetchAppointmentsApi(`/${id}`, {
       method: 'DELETE',
       headers: buildAuthHeaders()
     })
@@ -301,7 +326,7 @@ export const initStorageListener = () => {
       const token = getAuthToken()
       if (!token) return
 
-      const response = await fetch(SERVER_API, {
+      const response = await fetchAppointmentsApi('', {
         headers: buildAuthHeaders()
       })
       const serverAppointments = await getAppointmentsFromResponse(response)

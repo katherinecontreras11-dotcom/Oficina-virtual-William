@@ -22,11 +22,25 @@ export default function Login() {
     e.preventDefault()
     setError('')
 
-    const foundUser = await login(form.email, form.password)
-    if (foundUser) {
-      navigate(foundUser.role === 'admin' ? '/admin' : '/cliente')
-    } else {
-      setError('Credenciales incorrectas. Verifique el correo y la contraseña.')
+    try {
+      const foundUser = await login(form.email, form.password)
+      if (foundUser) {
+        navigate(foundUser.role === 'admin' ? '/admin' : '/cliente')
+      } else {
+        setError('Credenciales incorrectas. Verifique el correo y la contraseña.')
+      }
+    } catch (err) {
+      const message = err?.message || ''
+      const isConnectionError = /Failed to fetch|NetworkError|ERR_CONNECTION_REFUSED|Load failed/i.test(message)
+      const isCredentialsError = /credenciales|invalid|401|403/i.test(message)
+
+      if (isConnectionError) {
+        setError('No se pudo conectar con el servidor. Verifique que el backend este activo.')
+      } else if (isCredentialsError) {
+        setError('Credenciales incorrectas. Verifique el correo y la contraseña.')
+      } else {
+        setError('Ocurrio un error al iniciar sesion. Intente nuevamente.')
+      }
     }
   }
 

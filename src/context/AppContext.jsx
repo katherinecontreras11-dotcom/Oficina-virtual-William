@@ -218,9 +218,11 @@ export function AppProvider({ children }) {
         console.log('[AppContext] Login exitoso:', userData.email)
         return userData
       }
+
+      return null
     } catch (error) {
       console.error('[AppContext] Error login:', error.message)
-      return null
+      throw error
     }
   }
 

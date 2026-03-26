@@ -26,24 +26,41 @@ const notifyListeners = () => {
   listeners.forEach(listener => listener(inMemoryAppointments))
 }
 
+const getAuthToken = () => localStorage.getItem('wil_auth_token')
+
+const buildAuthHeaders = (baseHeaders = {}) => {
+  const token = getAuthToken()
+  if (!token) return baseHeaders
+  return {
+    ...baseHeaders,
+    Authorization: `Bearer ${token}`
+  }
+}
+
 const getAppointmentsFromResponse = async (response) => {
   const contentType = response.headers.get('content-type') || ''
   if (!response.ok) return null
   if (!contentType.includes('application/json')) return null
 
   const data = await response.json()
-  if (!data || !Array.isArray(data.appointments)) return null
+  const list = Array.isArray(data) ? data : data?.appointments
+  if (!Array.isArray(list)) return null
 
-  return data.appointments.map((a) => ({
+  return list.map((a) => ({
     ...a,
-    clientId: Number(a.clientId)
+    clientId: typeof a.clientId === 'object' ? (a.clientId?._id || a.clientId) : a.clientId
   }))
 }
 
 // ⭐ SERVIDOR API - Sincroniza con servidor central
 const syncWithServer = async () => {
   try {
-    const response = await fetch(SERVER_API)
+    const token = getAuthToken()
+    if (!token) return
+
+    const response = await fetch(SERVER_API, {
+      headers: buildAuthHeaders()
+    })
     const serverAppointments = await getAppointmentsFromResponse(response)
     if (serverAppointments) {
       console.log('[GlobalStore] Synced with server:', serverAppointments.length, 'appointments')
@@ -88,9 +105,12 @@ export const addAppointmentToStore = async (appointment) => {
     clientId: Number(appointment.clientId)
   }
   try {
+    const token = getAuthToken()
+    if (!token) return
+
     const response = await fetch(SERVER_API, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(normalized)
     })
     if (response.ok) {
@@ -111,9 +131,12 @@ export const addAppointmentToStore = async (appointment) => {
 
 export const updateAppointmentInStore = async (id, updatedData) => {
   try {
+    const token = getAuthToken()
+    if (!token) return
+
     const response = await fetch(`${SERVER_API}/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(updatedData)
     })
     if (response.ok) {
@@ -132,8 +155,12 @@ export const updateAppointmentInStore = async (id, updatedData) => {
 
 export const deleteAppointmentFromStore = async (id) => {
   try {
+    const token = getAuthToken()
+    if (!token) return
+
     const response = await fetch(`${SERVER_API}/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: buildAuthHeaders()
     })
     if (response.ok) {
       inMemoryAppointments = inMemoryAppointments.filter(a => a.id !== id)
@@ -236,7 +263,12 @@ export const initStorageListener = () => {
   // ⭐ Este es el método principal para sincronizar Chrome ↔ Edge
   pollingInterval = setInterval(async () => {
     try {
-      const response = await fetch(SERVER_API)
+      const token = getAuthToken()
+      if (!token) return
+
+      const response = await fetch(SERVER_API, {
+        headers: buildAuthHeaders()
+      })
       const serverAppointments = await getAppointmentsFromResponse(response)
       if (serverAppointments) {
         // Detectar si cambió el servidor
@@ -253,7 +285,7 @@ export const initStorageListener = () => {
     } catch (e) {
       console.error('[GlobalStore] Polling error:', e)
     }
-  }, 1000) // Sincronizar cada 1 segundo del servidor
+  }, 5000) // Sincronizar cada 5 segundos del servidor
   
   console.log('[GlobalStore] ✅ All sync methods initialized (BroadcastChannel + storage events + server polling)')
 }

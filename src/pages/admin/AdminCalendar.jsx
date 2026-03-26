@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import { CalendarDays, Clock, Video, MapPin, Plus, Edit, Trash2, X, Save } from 'lucide-react'
 import VideoCallButton from '../../components/VideoCallButton'
 import '../client/Dashboard.css'
@@ -378,3 +378,4 @@ export default function AdminCalendar() {
     </div>
   )
 }
+

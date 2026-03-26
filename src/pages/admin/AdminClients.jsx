@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import { Users, Plus, Search, Mail, Phone, Eye, EyeOff, Edit, Trash2, X, Save, Lock } from 'lucide-react'
 import '../client/Dashboard.css'
 
@@ -381,3 +381,4 @@ export default function AdminClients() {
     </div>
   )
 }
+

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../context/useApp'
 import {
   LayoutDashboard, Briefcase, FileText, CalendarDays,
   MessageSquare, Users, ChevronLeft, ChevronRight, LogOut, User
@@ -70,3 +70,4 @@ export default function Sidebar({ role, isOpen, onToggle }) {
     </>
   )
 }
+

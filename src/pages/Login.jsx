@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../context/useApp'
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import BrandLogo from '../components/BrandLogo'
 import './Login.css'
@@ -147,3 +147,4 @@ export default function Login() {
     </div>
   )
 }
+

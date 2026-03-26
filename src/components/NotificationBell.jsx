@@ -1,5 +1,5 @@
 import { Bell } from 'lucide-react'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../context/useApp'
 
 export default function NotificationBell({ onClick }) {
   const { unreadCount } = useApp()
@@ -57,3 +57,4 @@ export default function NotificationBell({ onClick }) {
     </button>
   )
 }
+

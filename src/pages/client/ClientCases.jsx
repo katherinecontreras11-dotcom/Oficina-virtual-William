@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import { Briefcase, Search, Filter, Upload, FileText, Download, Trash2, Plus, X, AlertCircle } from 'lucide-react'
 import '../client/Dashboard.css'
 
@@ -239,3 +239,4 @@ export default function ClientCases() {
     </div>
   )
 }
+

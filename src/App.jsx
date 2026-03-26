@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { AppProvider, useApp } from './context/AppContext'
+import { AppProvider } from './context/AppContext'
+import { useApp } from './context/useApp'
 import { ChatContextProvider } from './context/ChatContext'
 import { ChatBubbleIcon } from './components/ChatBubbleIcon'
 import { AIChatModal } from './components/AIChatModal'

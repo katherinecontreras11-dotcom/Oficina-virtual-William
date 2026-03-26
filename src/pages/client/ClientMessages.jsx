@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, Paperclip, Edit2, X, Check } from 'lucide-react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import '../client/Dashboard.css'
 
 const ONE_HOUR_MS = 60 * 60 * 1000
@@ -197,3 +197,4 @@ export default function ClientMessages() {
     </div>
   )
 }
+

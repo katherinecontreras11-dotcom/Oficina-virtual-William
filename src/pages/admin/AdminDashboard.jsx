@@ -1,4 +1,4 @@
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import {
   Users, Briefcase, CalendarDays, TrendingUp,
   FileText, AlertCircle, CheckCircle, Clock
@@ -90,3 +90,4 @@ export default function AdminDashboard() {
     </div>
   )
 }
+

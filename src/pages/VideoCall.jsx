@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../context/useApp'
 import { PhoneOff, Video, Clock, User } from 'lucide-react'
 import { getOtherParticipant } from '../utils/videoCallHelpers'
 import './VideoCall.css'
@@ -148,3 +148,4 @@ export default function VideoCall() {
     </div>
   )
 }
+

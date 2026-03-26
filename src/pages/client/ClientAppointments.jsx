@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import { CalendarDays, Clock, Video, MapPin, Plus, X } from 'lucide-react'
 import VideoCallButton from '../../components/VideoCallButton'
 import '../client/Dashboard.css'
@@ -220,3 +220,4 @@ export default function ClientAppointments() {
     </div>
   )
 }
+

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Send, Paperclip, Trash2, CheckSquare } from 'lucide-react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import '../client/Dashboard.css'
 
 export default function AdminMessages() {
@@ -158,3 +158,4 @@ export default function AdminMessages() {
     </div>
   )
 }
+

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../context/useApp'
 import { Menu, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import NotificationBell from './NotificationBell'
@@ -64,3 +64,4 @@ export default function TopBar({ onMenuToggle }) {
     </>
   )
 }
+

@@ -1,5 +1,5 @@
 import { X, Trash2, CheckCircle2, Mail, Calendar, FileText, AlertCircle } from 'lucide-react'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../context/useApp'
 import './NotificationCenter.css'
 
 const iconMap = {
@@ -178,3 +178,4 @@ export default function NotificationCenter({ isOpen, onClose, onNavigate }) {
     </div>
   )
 }
+

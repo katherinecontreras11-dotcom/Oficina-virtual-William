@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { 
   initializeGlobalStore, 
   getAppointmentsFromStore, 
@@ -35,6 +35,7 @@ import {
   setAuthToken,
   getAuthToken
 } from '../services/apiService'
+import { AppContext } from './appContextInstance'
 
 // ⭐ GLOBAL APPOINTMENTS STORE - Compartido entre todos los usuarios/navegadores
 // Esto actúa como una "base de datos" compartida en localStorage
@@ -57,12 +58,6 @@ const initialDB = {
     1: []
   },
   documents: []
-}
-
-const AppContext = createContext(null)
-
-export function useApp() {
-  return useContext(AppContext)
 }
 
 export function AppProvider({ children }) {

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../context/useApp'
 import { Video, Loader } from 'lucide-react'
 import { canUserStartCall, getCallStatus } from '../utils/videoCallHelpers'
 import './VideoCallButton.css'
@@ -96,3 +96,4 @@ export default function VideoCallButton({ appointment }) {
     </div>
   )
 }
+

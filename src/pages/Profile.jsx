@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useApp } from '../context/AppContext'
+import { useApp } from '../context/useApp'
 import { Save, Camera, User, Mail, Phone, MapPin, FileText, X, Shield, Briefcase } from 'lucide-react'
 import './client/Dashboard.css'
 
@@ -263,3 +263,4 @@ export default function Profile() {
     </div>
   )
 }
+

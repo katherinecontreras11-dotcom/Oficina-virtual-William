@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useApp } from '../../context/AppContext'
+import { useApp } from '../../context/useApp'
 import { Briefcase, Plus, Search, Filter, Edit, Eye, Trash2, X, Save, Upload, FileText, AlertCircle, Download } from 'lucide-react'
 import '../client/Dashboard.css'
 
@@ -583,3 +583,4 @@ export default function AdminCases() {
     </div>
   )
 }
+

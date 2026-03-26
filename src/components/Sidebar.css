@@ -154,6 +154,7 @@
     max-width: 260px;
     min-width: 220px;
     box-shadow: none;
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
   }
 
   .sidebar.open {
@@ -178,6 +179,7 @@
   .sidebar-nav {
     padding: var(--space-3) var(--space-2);
     gap: var(--space-2);
+    padding-bottom: calc(112px + env(safe-area-inset-bottom));
   }
 
   .sidebar-link {
@@ -192,7 +194,13 @@
   }
 
   .sidebar-footer {
-    padding: var(--space-4) var(--space-2);
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 16px;
+    z-index: 2;
+    padding: var(--space-3) var(--space-2) calc(var(--space-3) + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(11, 23, 38, 0.25) 0%, rgba(11, 23, 38, 0.98) 28%);
   }
 
   .sidebar-overlay {
@@ -247,6 +255,7 @@
   .sidebar-nav {
     padding: var(--space-2) var(--space-2);
     gap: var(--space-1);
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
   }
 
   .sidebar-link {
@@ -256,6 +265,7 @@
   }
 
   .sidebar-footer {
-    padding: var(--space-3) var(--space-2);
+    bottom: 14px;
+    padding: var(--space-2) var(--space-2) calc(var(--space-3) + env(safe-area-inset-bottom));
   }
 }

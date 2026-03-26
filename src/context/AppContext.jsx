@@ -22,6 +22,7 @@ import {
   getMessagesAPI,
   sendMessageAPI,
   editMessageAPI,
+  deleteMessageAPI,
   getNotificationsAPI,
   markNotificationReadAPI,
   markAllNotificationsReadAPI,
@@ -485,14 +486,43 @@ export function AppProvider({ children }) {
     }
   }
 
-  const deleteMessages = (convId, messageIds) => {
+  const deleteMessages = async (convId, messageIds) => {
+    const requestedIds = (messageIds || []).map((id) => String(id))
+    const removableIds = new Set()
+    const failedIds = []
+
+    for (const rawId of requestedIds) {
+      // Mensajes locales temporales (ids numéricos) no existen en backend
+      if (/^\d+$/.test(rawId)) {
+        removableIds.add(rawId)
+        continue
+      }
+
+      try {
+        await deleteMessageAPI(rawId)
+        removableIds.add(rawId)
+      } catch (error) {
+        if ((error.message || '').includes('404')) {
+          removableIds.add(rawId)
+        } else {
+          failedIds.push(rawId)
+        }
+      }
+    }
+
     setMessages(prev => {
       const currentList = prev[convId] || []
       return {
         ...prev,
-        [convId]: currentList.filter(m => !messageIds.includes(m.id))
+        [convId]: currentList.filter((m) => !removableIds.has(String(m.id)))
       }
     })
+
+    return {
+      success: failedIds.length === 0,
+      removedCount: removableIds.size,
+      failedCount: failedIds.length
+    }
   }
 
   // Appointments - usando global store

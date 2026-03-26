@@ -87,6 +87,9 @@ export const sendMessageAPI = (conversationId, text, from) =>
 export const editMessageAPI = (id, text) =>
   apiCall(`/api/messages/${id}`, 'PUT', { text })
 
+export const deleteMessageAPI = (id) =>
+  apiCall(`/api/messages/${id}`, 'DELETE')
+
 // ==================== NOTIFICATIONS ====================
 export const getNotificationsAPI = (unreadOnly = false) =>
   apiCall(`/api/notifications?unreadOnly=${unreadOnly}`, 'GET')

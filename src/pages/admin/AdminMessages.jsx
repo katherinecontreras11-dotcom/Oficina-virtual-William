@@ -44,11 +44,14 @@ export default function AdminMessages() {
     )
   }
 
-  const handleDeleteSelected = () => {
+  const handleDeleteSelected = async () => {
     if (selectedMsgs.length > 0) {
-      deleteMessages(activeConv, selectedMsgs)
+      const result = await deleteMessages(activeConv, selectedMsgs)
       setSelectedMsgs([])
       setIsDeletingMode(false)
+      if (!result?.success) {
+        alert(`No se pudieron eliminar ${result.failedCount} mensaje(s). Intenta de nuevo.`)
+      }
     }
   }
 

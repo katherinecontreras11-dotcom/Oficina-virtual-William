@@ -531,17 +531,17 @@ export function AppProvider({ children }) {
 
   // Appointments - usando global store
   const addAppointment = (appointment) => {
-    const id = Date.now()
-    const roomName = `sala-${id}`
+    const roomName = appointment.roomName || appointment.roomId || `sala-${Date.now()}`
     const newAppointment = {
       ...appointment, 
-      id, 
+      roomId: appointment.roomId || roomName,
       roomName, 
       callActive: false,
       videoStartTime: null,
       videoEndTime: null,
       joinedUsers: [],
-      clientId: Number(appointment.clientId)
+      clientId: String(appointment.clientId),
+      lawyerId: String(appointment.lawyerId || user?.id || '')
     }
     console.log('[AppContext] addAppointment calling store:', newAppointment)
     addAppointmentToStore(newAppointment)

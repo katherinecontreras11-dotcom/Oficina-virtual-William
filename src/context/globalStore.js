@@ -7,6 +7,20 @@ const BROADCAST_CHANNEL = 'wil_appointments_sync'
 const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin
 const SERVER_API = `${API_BASE_URL}/api/appointments`
 
+const statusFromApi = {
+  pending: 'Pendiente',
+  confirmed: 'Confirmada',
+  completed: 'Completada',
+  cancelled: 'Cancelada'
+}
+
+const statusToApi = {
+  Pendiente: 'pending',
+  Confirmada: 'confirmed',
+  Completada: 'completed',
+  Cancelada: 'cancelled'
+}
+
 let inMemoryAppointments = []
 let lastStorageHash = ''
 let broadcastChannel = null
@@ -25,6 +39,35 @@ export const subscribeToAppointments = (callback) => {
 const notifyListeners = () => {
   listeners.forEach(listener => listener(inMemoryAppointments))
 }
+
+const normalizeAppointment = (a) => {
+  const clientId = typeof a.clientId === 'object' ? (a.clientId?._id || a.clientId) : a.clientId
+  const lawyerId = typeof a.lawyerId === 'object' ? (a.lawyerId?._id || a.lawyerId) : a.lawyerId
+  const room = a.roomName || a.roomId || `room-${Date.now()}`
+
+  return {
+    ...a,
+    id: String(a.id || a._id),
+    clientId: String(clientId),
+    lawyerId: String(lawyerId),
+    roomId: room,
+    roomName: room,
+    type: a.type || 'Videollamada',
+    status: statusFromApi[a.status] || a.status || 'Pendiente',
+    callActive: !!a.callActive,
+    joinedUsers: Array.isArray(a.joinedUsers) ? a.joinedUsers : []
+  }
+}
+
+const toApiPayload = (appointment) => ({
+  clientId: String(appointment.clientId),
+  lawyerId: String(appointment.lawyerId),
+  date: appointment.date,
+  time: appointment.time,
+  roomId: appointment.roomId || appointment.roomName || `room-${Date.now()}`,
+  notes: appointment.notes || '',
+  status: statusToApi[appointment.status] || 'pending'
+})
 
 const getAuthToken = () => localStorage.getItem('wil_auth_token')
 
@@ -46,10 +89,7 @@ const getAppointmentsFromResponse = async (response) => {
   const list = Array.isArray(data) ? data : data?.appointments
   if (!Array.isArray(list)) return null
 
-  return list.map((a) => ({
-    ...a,
-    clientId: typeof a.clientId === 'object' ? (a.clientId?._id || a.clientId) : a.clientId
-  }))
+  return list.map(normalizeAppointment)
 }
 
 // ⭐ SERVIDOR API - Sincroniza con servidor central
@@ -77,10 +117,7 @@ export const initializeGlobalStore = () => {
   try {
     const saved = localStorage.getItem(GLOBAL_KEY)
     if (saved) {
-      inMemoryAppointments = JSON.parse(saved).map(a => ({
-        ...a,
-        clientId: Number(a.clientId)
-      }))
+      inMemoryAppointments = JSON.parse(saved).map(normalizeAppointment)
       lastStorageHash = saved
       console.log('[GlobalStore] Initialized from localStorage:', inMemoryAppointments.length, 'appointments')
     } else {
@@ -100,10 +137,7 @@ export const getAppointmentsFromStore = () => {
 }
 
 export const addAppointmentToStore = async (appointment) => {
-  const normalized = {
-    ...appointment,
-    clientId: Number(appointment.clientId)
-  }
+  const normalized = toApiPayload(appointment)
   try {
     const token = getAuthToken()
     if (!token) return
@@ -114,18 +148,16 @@ export const addAppointmentToStore = async (appointment) => {
       body: JSON.stringify(normalized)
     })
     if (response.ok) {
-      inMemoryAppointments.push(normalized)
-      console.log('[GlobalStore] ✅ Added appointment (synced with server):', normalized.id)
+      const data = await response.json()
+      const created = normalizeAppointment(data.appointment)
+      inMemoryAppointments.push(created)
+      console.log('[GlobalStore] ✅ Added appointment (synced with server):', created.id)
       persistToLocalStorage()
-      broadcastToOtherBrowsers('ADD_APPOINTMENT', normalized)
+      broadcastToOtherBrowsers('ADD_APPOINTMENT', created)
       notifyListeners()
     }
   } catch (e) {
     console.error('[GlobalStore] Error adding appointment:', e)
-    // Fallback: agregar localmente si el servidor falla
-    inMemoryAppointments.push(normalized)
-    persistToLocalStorage()
-    notifyListeners()
   }
 }
 
@@ -137,11 +169,17 @@ export const updateAppointmentInStore = async (id, updatedData) => {
     const response = await fetch(`${SERVER_API}/${id}`, {
       method: 'PUT',
       headers: buildAuthHeaders({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify(updatedData)
+      body: JSON.stringify({
+        ...updatedData,
+        status: statusToApi[updatedData.status] || undefined,
+        roomId: updatedData.roomId || updatedData.roomName
+      })
     })
     if (response.ok) {
-      inMemoryAppointments = inMemoryAppointments.map(a => 
-        a.id === id ? { ...a, ...updatedData, clientId: Number(a.clientId) } : a
+      const data = await response.json()
+      const updated = normalizeAppointment(data.appointment)
+      inMemoryAppointments = inMemoryAppointments.map(a =>
+        String(a.id) === String(id) ? { ...a, ...updated } : a
       )
       console.log('[GlobalStore] ✅ Updated appointment (synced with server):', id)
       persistToLocalStorage()
@@ -163,7 +201,7 @@ export const deleteAppointmentFromStore = async (id) => {
       headers: buildAuthHeaders()
     })
     if (response.ok) {
-      inMemoryAppointments = inMemoryAppointments.filter(a => a.id !== id)
+      inMemoryAppointments = inMemoryAppointments.filter(a => String(a.id) !== String(id))
       console.log('[GlobalStore] ✅ Deleted appointment (synced with server):', id)
       persistToLocalStorage()
       broadcastToOtherBrowsers('DELETE_APPOINTMENT', { id })
@@ -217,7 +255,7 @@ const handleBroadcastMessage = (event) => {
         notifyListeners()
         break
       case 'DELETE_APPOINTMENT':
-        inMemoryAppointments = inMemoryAppointments.filter(a => a.id !== data.id)
+        inMemoryAppointments = inMemoryAppointments.filter(a => String(a.id) !== String(data.id))
         console.log('[GlobalStore] ✅ Deleted appointment from broadcast:', data.id)
         persistToLocalStorage()
         notifyListeners()
@@ -247,10 +285,7 @@ export const initStorageListener = () => {
   window.addEventListener('storage', (e) => {
     if (e.key === GLOBAL_KEY && e.newValue) {
       try {
-        inMemoryAppointments = JSON.parse(e.newValue).map(a => ({
-          ...a,
-          clientId: Number(a.clientId)
-        }))
+        inMemoryAppointments = JSON.parse(e.newValue).map(normalizeAppointment)
         console.log('[GlobalStore] Storage event detected, reloaded:', inMemoryAppointments.length, 'appointments')
         notifyListeners()
       } catch (err) {

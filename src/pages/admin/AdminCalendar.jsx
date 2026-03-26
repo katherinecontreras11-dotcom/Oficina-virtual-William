@@ -16,7 +16,7 @@ const hours = (() => {
 })()
 
 export default function AdminCalendar() {
-  const { appointments, users, cases, addAppointment, updateAppointment, deleteAppointment } = useApp()
+  const { appointments, users, cases, addAppointment, updateAppointment, deleteAppointment, user } = useApp()
   const [showModal, setShowModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -69,7 +69,7 @@ export default function AdminCalendar() {
     e.preventDefault()
     
     // Validación: Verificar que clientId es válido
-    if (!newAppt.clientId || Number(newAppt.clientId) === 0) {
+    if (!newAppt.clientId) {
       alert('Por favor, seleccione un cliente válido')
       return
     }
@@ -80,8 +80,8 @@ export default function AdminCalendar() {
     
     const appointmentToAdd = {
       ...newAppt,
-      clientId: Number(newAppt.clientId),
-      lawyerId: 1,
+      clientId: String(newAppt.clientId),
+      lawyerId: String(user?.id || ''),
       date: formattedDate,
       caseId: newAppt.caseId || undefined
     }
@@ -119,7 +119,7 @@ export default function AdminCalendar() {
     e.preventDefault()
     const updatedData = {
       time: editData.time,
-      clientId: Number(editData.clientId),
+      clientId: String(editData.clientId),
       type: editData.type,
       status: editData.status,
       caseId: editData.caseId || undefined

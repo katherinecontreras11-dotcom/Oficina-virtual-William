@@ -27,12 +27,13 @@ const hours24 = generateHours24()
 export default function ClientAppointments() {
   const { user, cases, appointments, addAppointment, users } = useApp()
   const [showModal, setShowModal] = useState(false)
-  const myCases = cases.filter(c => c.clientId === user?.id)
+  const myCases = cases.filter(c => String(c.clientId) === String(user?.id))
   const caseOptions = myCases.map(c => c.id)
 
-  const [newAppt, setNewAppt] = useState({ date: '', time: '', lawyerId: 1, type: 'Videollamada', caseId: caseOptions[0] || '' })
+  const defaultLawyerId = users.find((u) => u.role === 'admin')?.id || ''
+  const [newAppt, setNewAppt] = useState({ date: '', time: '', lawyerId: String(defaultLawyerId), type: 'Videollamada', caseId: caseOptions[0] || '' })
 
-  const myAppointments = appointments.filter(a => Number(a.clientId) === Number(user?.id))
+  const myAppointments = appointments.filter(a => String(a.clientId) === String(user?.id))
   
   // Debug: Mostrar estado actual
   console.log('[ClientAppointments RENDER]', {
@@ -66,13 +67,14 @@ export default function ClientAppointments() {
     const formattedDate = new Date(year, month - 1, day).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
     const appt = {
       ...newAppt,
-      clientId: user.id,
+      clientId: String(user.id),
+      lawyerId: String(newAppt.lawyerId),
       date: formattedDate,
       status: 'Pendiente'
     }
     addAppointment(appt)
     setShowModal(false)
-    setNewAppt({ date: '', time: '', lawyerId: 1, type: 'Videollamada', caseId: caseOptions[0] || '' })
+    setNewAppt({ date: '', time: '', lawyerId: String(defaultLawyerId), type: 'Videollamada', caseId: caseOptions[0] || '' })
   }
 
   const getLawyerName = (id) => users.find(u => u.id === id)?.name
@@ -172,9 +174,11 @@ export default function ClientAppointments() {
                 <select
                   className="form-input"
                   value={newAppt.lawyerId}
-                  onChange={(e) => setNewAppt({ ...newAppt, lawyerId: Number(e.target.value) })}
+                  onChange={(e) => setNewAppt({ ...newAppt, lawyerId: String(e.target.value) })}
                 >
-                  <option value={1}>Lic. Rodríguez</option>
+                  {users.filter((u) => u.role === 'admin').map((lawyer) => (
+                    <option key={lawyer.id} value={String(lawyer.id)}>{lawyer.name}</option>
+                  ))}
                 </select>
               </div>
 

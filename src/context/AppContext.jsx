@@ -341,7 +341,11 @@ export function AppProvider({ children }) {
             const existing = prev[convId] || []
             const byId = new Map()
 
-            ;[...existing, ...incoming].forEach((msg) => {
+            // Mantener solo mensajes temporales locales (ids numéricos)
+            // para no revivir mensajes ya eliminados en el servidor.
+            const localDrafts = existing.filter((msg) => /^\d+$/.test(String(msg.id)))
+
+            ;[...incoming, ...localDrafts].forEach((msg) => {
               byId.set(String(msg.id), msg)
             })
 

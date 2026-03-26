@@ -4,7 +4,8 @@
 
 const GLOBAL_KEY = 'wil_global_appointments'
 const BROADCAST_CHANNEL = 'wil_appointments_sync'
-const SERVER_API = `${window.location.origin}/api/appointments` // Detecta puerto automáticamente
+const API_BASE_URL = import.meta.env.VITE_API_URL || window.location.origin
+const SERVER_API = `${API_BASE_URL}/api/appointments`
 
 let inMemoryAppointments = []
 let lastStorageHash = ''
@@ -25,16 +26,26 @@ const notifyListeners = () => {
   listeners.forEach(listener => listener(inMemoryAppointments))
 }
 
+const getAppointmentsFromResponse = async (response) => {
+  const contentType = response.headers.get('content-type') || ''
+  if (!response.ok) return null
+  if (!contentType.includes('application/json')) return null
+
+  const data = await response.json()
+  if (!data || !Array.isArray(data.appointments)) return null
+
+  return data.appointments.map((a) => ({
+    ...a,
+    clientId: Number(a.clientId)
+  }))
+}
+
 // ⭐ SERVIDOR API - Sincroniza con servidor central
 const syncWithServer = async () => {
   try {
     const response = await fetch(SERVER_API)
-    if (response.ok) {
-      const data = await response.json()
-      const serverAppointments = data.appointments.map(a => ({
-        ...a,
-        clientId: Number(a.clientId)
-      }))
+    const serverAppointments = await getAppointmentsFromResponse(response)
+    if (serverAppointments) {
       console.log('[GlobalStore] Synced with server:', serverAppointments.length, 'appointments')
       inMemoryAppointments = serverAppointments
       persistToLocalStorage()
@@ -226,13 +237,8 @@ export const initStorageListener = () => {
   pollingInterval = setInterval(async () => {
     try {
       const response = await fetch(SERVER_API)
-      if (response.ok) {
-        const data = await response.json()
-        const serverAppointments = data.appointments.map(a => ({
-          ...a,
-          clientId: Number(a.clientId)
-        }))
-        
+      const serverAppointments = await getAppointmentsFromResponse(response)
+      if (serverAppointments) {
         // Detectar si cambió el servidor
         const currentHash = JSON.stringify(inMemoryAppointments)
         const serverHash = JSON.stringify(serverAppointments)

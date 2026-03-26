@@ -1,11 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
-// DEBUG: Log API URL para diagnosticar problema
-if (typeof window !== 'undefined') {
-  console.log('[apiService] API_URL configured as:', API_URL)
-  console.log('[apiService] VITE_API_URL env var:', import.meta.env.VITE_API_URL)
-}
-
 let authToken = localStorage.getItem('wil_auth_token') || null
 
 export const setAuthToken = (token) => {

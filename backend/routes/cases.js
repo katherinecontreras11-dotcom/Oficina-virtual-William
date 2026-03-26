@@ -2,6 +2,7 @@ import express from 'express'
 import Case from '../models/Case.js'
 import { verifyToken, verifyAdmin } from '../middleware/auth.js'
 import { notifyClientCaseUpdated } from '../utils/notificationHelper.js'
+import { deleteFromCloudinary } from '../utils/cloudinary.js'
 
 const router = express.Router()
 
@@ -136,6 +137,126 @@ router.put('/:id', verifyToken, verifyAdmin, async (req, res) => {
     res.json({ success: true, case: caseData })
   } catch (error) {
     console.error('[Cases] Error actualizando:', error.message)
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// POST /api/cases/:id/client-documents - Subir metadata de documento del cliente
+router.post('/:id/client-documents', verifyToken, async (req, res) => {
+  try {
+    const { name, size, mimeType, url, publicId } = req.body
+    if (!name || !url || !publicId) {
+      return res.status(400).json({ error: 'Campos requeridos: name, url, publicId' })
+    }
+
+    const caseData = await Case.findById(req.params.id)
+    if (!caseData) return res.status(404).json({ error: 'Caso no encontrado' })
+
+    const isAdmin = req.user?.role === 'admin'
+    const isOwnerClient = String(caseData.clientId) === String(req.user?.id)
+    if (!isAdmin && !isOwnerClient) {
+      return res.status(403).json({ error: 'No tienes permisos para agregar documentos a este caso' })
+    }
+
+    const newDoc = {
+      id: Date.now(),
+      name,
+      size: Number(size) || 0,
+      type: 'PDF',
+      mimeType: mimeType || 'application/pdf',
+      url,
+      publicId,
+      uploadedAt: new Date().toLocaleString('es-ES')
+    }
+
+    caseData.clientDocuments = [...(caseData.clientDocuments || []), newDoc]
+    await caseData.save()
+
+    res.json({ success: true, case: caseData, document: newDoc })
+  } catch (error) {
+    console.error('[Cases] Error agregando client document:', error.message)
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// POST /api/cases/:id/lawyer-documents - Subir metadata de documento del abogado
+router.post('/:id/lawyer-documents', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { name, size, mimeType, url, publicId } = req.body
+    if (!name || !url || !publicId) {
+      return res.status(400).json({ error: 'Campos requeridos: name, url, publicId' })
+    }
+
+    const caseData = await Case.findById(req.params.id)
+    if (!caseData) return res.status(404).json({ error: 'Caso no encontrado' })
+
+    const newDoc = {
+      id: Date.now(),
+      name,
+      size: Number(size) || 0,
+      type: 'PDF',
+      mimeType: mimeType || 'application/pdf',
+      url,
+      publicId,
+      uploadedAt: new Date().toLocaleString('es-ES')
+    }
+
+    caseData.lawyerDocuments = [...(caseData.lawyerDocuments || []), newDoc]
+    await caseData.save()
+
+    res.json({ success: true, case: caseData, document: newDoc })
+  } catch (error) {
+    console.error('[Cases] Error agregando lawyer document:', error.message)
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// DELETE /api/cases/:id/client-documents/:docId - Eliminar doc cliente
+router.delete('/:id/client-documents/:docId', verifyToken, async (req, res) => {
+  try {
+    const caseData = await Case.findById(req.params.id)
+    if (!caseData) return res.status(404).json({ error: 'Caso no encontrado' })
+
+    const isAdmin = req.user?.role === 'admin'
+    const isOwnerClient = String(caseData.clientId) === String(req.user?.id)
+    if (!isAdmin && !isOwnerClient) {
+      return res.status(403).json({ error: 'No tienes permisos para eliminar documentos de este caso' })
+    }
+
+    const currentDocs = caseData.clientDocuments || []
+    const docToDelete = currentDocs.find((d) => String(d.id) === String(req.params.docId))
+    caseData.clientDocuments = currentDocs.filter((d) => String(d.id) !== String(req.params.docId))
+    await caseData.save()
+
+    if (docToDelete?.publicId) {
+      await deleteFromCloudinary(docToDelete.publicId)
+    }
+
+    res.json({ success: true, case: caseData })
+  } catch (error) {
+    console.error('[Cases] Error eliminando client document:', error.message)
+    res.status(500).json({ error: error.message })
+  }
+})
+
+// DELETE /api/cases/:id/lawyer-documents/:docId - Eliminar doc abogado
+router.delete('/:id/lawyer-documents/:docId', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const caseData = await Case.findById(req.params.id)
+    if (!caseData) return res.status(404).json({ error: 'Caso no encontrado' })
+
+    const currentDocs = caseData.lawyerDocuments || []
+    const docToDelete = currentDocs.find((d) => String(d.id) === String(req.params.docId))
+    caseData.lawyerDocuments = currentDocs.filter((d) => String(d.id) !== String(req.params.docId))
+    await caseData.save()
+
+    if (docToDelete?.publicId) {
+      await deleteFromCloudinary(docToDelete.publicId)
+    }
+
+    res.json({ success: true, case: caseData })
+  } catch (error) {
+    console.error('[Cases] Error eliminando lawyer document:', error.message)
     res.status(500).json({ error: error.message })
   }
 })

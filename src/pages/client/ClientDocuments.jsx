@@ -1,28 +1,23 @@
 import { useState } from 'react'
 import { useApp } from '../../context/useApp'
-import { FileText, Upload, Download, Eye, Trash2, X, Plus, AlertCircle } from 'lucide-react'
+import { FileText, Upload, Download, Trash2, X, Plus, AlertCircle } from 'lucide-react'
 import '../client/Dashboard.css'
 
 const typeColor = { PDF: 'danger', DOCX: 'info', IMG: 'success', XLSX: 'warning' }
 
 export default function ClientDocuments() {
-  const { user, documents, cases, addDocument, deleteDocument, addClientDocument } = useApp()
+  const { user, cases, addClientDocument } = useApp()
   const [showModal, setShowModal] = useState(false)
   const [newDoc, setNewDoc] = useState({ name: '', caseId: '', type: 'PDF', file: null, content: null })
   const [fileError, setFileError] = useState('')
 
   const myCases = cases.filter(c => c.clientId === user?.id)
-  const myDocuments = documents.filter(d => d.clientId === user?.id)
-
-  // Combinar documentos generales + documentos de los casos
-  const allDocuments = [
-    ...myDocuments,
-    ...myCases.flatMap(c => (c.clientDocuments || []).map(doc => ({
+  // Documentos asociados a expedientes (persistidos en backend/nube)
+  const allDocuments = myCases.flatMap(c => (c.clientDocuments || []).map(doc => ({
       ...doc,
       caseId: c.id,
       date: doc.uploadedAt || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
     })))
-  ]
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0]
@@ -62,33 +57,14 @@ export default function ClientDocuments() {
       return
     }
 
-    // Si hay expedientes, requerir selección
-    if (myCases.length > 0 && !newDoc.caseId) {
+    // Requerir expediente para persistir en backend/nube
+    if (!newDoc.caseId) {
       setFileError('Debes seleccionar un expediente para compartir con tu abogado')
       return
     }
 
-    if (newDoc.caseId) {
-      // Subir a expediente específico
-      addClientDocument(newDoc.caseId, {
-        id: `doc-${Date.now()}`,
-        name: newDoc.file.name,
-        size: newDoc.file.size,
-        type: newDoc.type,
-        content: newDoc.content,
-        uploadedAt: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
-      })
-    } else {
-      // Subir documento general
-      addDocument({
-        id: `doc-${Date.now()}`,
-        name: newDoc.file.name,
-        size: newDoc.file.size,
-        type: newDoc.type,
-        content: newDoc.content,
-        clientId: user?.id
-      })
-    }
+    // Subir a expediente específico en nube
+    addClientDocument(newDoc.caseId, newDoc.file)
 
     setNewDoc({ name: '', caseId: '', type: 'PDF', file: null, content: null })
     setFileError('')
@@ -97,13 +73,14 @@ export default function ClientDocuments() {
 
   const downloadDocument = (doc) => {
     try {
-      if (!doc.content) {
+      const downloadUrl = doc.url || doc.content
+      if (!downloadUrl) {
         alert('Este documento no tiene contenido para descargar')
         return
       }
 
       const link = document.createElement('a')
-      link.href = doc.content
+      link.href = downloadUrl
       link.download = doc.name
       document.body.appendChild(link)
       link.click()
@@ -113,10 +90,6 @@ export default function ClientDocuments() {
       console.error('Error al descargar:', error)
       alert('Error al descargar el documento')
     }
-  }
-
-  const handleDeleteGeneral = (docId) => {
-    deleteDocument(docId)
   }
 
   return (
@@ -211,7 +184,7 @@ export default function ClientDocuments() {
                       value={newDoc.caseId}
                       onChange={(e) => setNewDoc({ ...newDoc, caseId: e.target.value })}
                     >
-                      <option value="">-- Documento general (no asociar) --</option>
+                      <option value="">-- Selecciona expediente --</option>
                       {myCases.map(c => <option key={c.id} value={c.id}>{c.id} — {c.title}</option>)}
                     </select>
                   </div>
@@ -282,16 +255,14 @@ export default function ClientDocuments() {
                         >
                           <Download size={18} />
                         </button>
-                        {!doc.caseId && (
-                          <button
-                            className="btn-icon btn-danger"
-                            title="Eliminar"
-                            onClick={() => handleDeleteGeneral(doc.id)}
-                            style={{padding: '0.5rem', borderRadius: '0.4rem', transition: 'background-color 0.2s'}}
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        )}
+                        <button
+                          className="btn-icon btn-danger"
+                          title="Eliminar"
+                          style={{padding: '0.5rem', borderRadius: '0.4rem', transition: 'background-color 0.2s', opacity: 0.35, cursor: 'not-allowed'}}
+                          disabled
+                        >
+                          <Trash2 size={18} />
+                        </button>
                       </div>
                     </td>
                   </tr>

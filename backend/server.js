@@ -70,6 +70,7 @@ import conversationsRoutes from './routes/conversations.js'
 import messagesRoutes from './routes/messages.js'
 import notificationsRoutes from './routes/notifications.js'
 import casesRoutes from './routes/cases.js'
+import uploadsRoutes from './routes/uploads.js'
 
 // Registrar rutas
 app.use('/api/auth', authRoutes)
@@ -79,6 +80,7 @@ app.use('/api/conversations', conversationsRoutes)
 app.use('/api/messages', messagesRoutes)
 app.use('/api/notifications', notificationsRoutes)
 app.use('/api/cases', casesRoutes)
+app.use('/api/uploads', uploadsRoutes)
 
 // Health check
 app.get('/api/health', (req, res) => {

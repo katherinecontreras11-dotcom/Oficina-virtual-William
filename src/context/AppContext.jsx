@@ -32,6 +32,11 @@ import {
   createCaseAPI,
   updateCaseAPI,
   deleteCaseAPI,
+  uploadPDFAPI,
+  addClientCaseDocumentAPI,
+  addLawyerCaseDocumentAPI,
+  deleteClientCaseDocumentAPI,
+  deleteLawyerCaseDocumentAPI,
   setAuthToken,
   getAuthToken
 } from '../services/apiService'
@@ -670,36 +675,82 @@ export function AppProvider({ children }) {
   }
 
   // Document management for cases
-  const addClientDocument = (caseId, document) => {
-    setCases(prev => prev.map(c => 
-      c.id === caseId 
-        ? { ...c, clientDocuments: [...(c.clientDocuments || []), { ...document, id: Date.now(), uploadedAt: new Date().toLocaleString('es-ES') }] }
-        : c
-    ))
+  const addClientDocument = async (caseId, file) => {
+    try {
+      const uploadResult = await uploadPDFAPI(file)
+      const docPayload = {
+        name: uploadResult.file.name,
+        size: uploadResult.file.size,
+        mimeType: uploadResult.file.mimeType,
+        url: uploadResult.file.url,
+        publicId: uploadResult.file.publicId
+      }
+
+      const result = await addClientCaseDocumentAPI(caseId, docPayload)
+      setCases(prev => prev.map(c => 
+        String(c.id) === String(caseId)
+          ? { ...c, ...result.case, id: result.case._id || result.case.id }
+          : c
+      ))
+      return { success: true }
+    } catch (error) {
+      console.error('[AppContext] Error subiendo documento cliente:', error.message)
+      return { success: false, message: error.message }
+    }
   }
 
-  const addLawyerDocument = (caseId, document) => {
-    setCases(prev => prev.map(c => 
-      c.id === caseId 
-        ? { ...c, lawyerDocuments: [...(c.lawyerDocuments || []), { ...document, id: Date.now(), uploadedAt: new Date().toLocaleString('es-ES') }] }
-        : c
-    ))
+  const addLawyerDocument = async (caseId, file) => {
+    try {
+      const uploadResult = await uploadPDFAPI(file)
+      const docPayload = {
+        name: uploadResult.file.name,
+        size: uploadResult.file.size,
+        mimeType: uploadResult.file.mimeType,
+        url: uploadResult.file.url,
+        publicId: uploadResult.file.publicId
+      }
+
+      const result = await addLawyerCaseDocumentAPI(caseId, docPayload)
+      setCases(prev => prev.map(c => 
+        String(c.id) === String(caseId)
+          ? { ...c, ...result.case, id: result.case._id || result.case.id }
+          : c
+      ))
+      return { success: true }
+    } catch (error) {
+      console.error('[AppContext] Error subiendo documento abogado:', error.message)
+      return { success: false, message: error.message }
+    }
   }
 
-  const deleteClientDocument = (caseId, documentId) => {
-    setCases(prev => prev.map(c => 
-      c.id === caseId 
-        ? { ...c, clientDocuments: (c.clientDocuments || []).filter(d => d.id !== documentId) }
-        : c
-    ))
+  const deleteClientDocument = async (caseId, documentId) => {
+    try {
+      const result = await deleteClientCaseDocumentAPI(caseId, documentId)
+      setCases(prev => prev.map(c => 
+        String(c.id) === String(caseId)
+          ? { ...c, ...result.case, id: result.case._id || result.case.id }
+          : c
+      ))
+      return { success: true }
+    } catch (error) {
+      console.error('[AppContext] Error eliminando documento cliente:', error.message)
+      return { success: false, message: error.message }
+    }
   }
 
-  const deleteLawyerDocument = (caseId, documentId) => {
-    setCases(prev => prev.map(c => 
-      c.id === caseId 
-        ? { ...c, lawyerDocuments: (c.lawyerDocuments || []).filter(d => d.id !== documentId) }
-        : c
-    ))
+  const deleteLawyerDocument = async (caseId, documentId) => {
+    try {
+      const result = await deleteLawyerCaseDocumentAPI(caseId, documentId)
+      setCases(prev => prev.map(c => 
+        String(c.id) === String(caseId)
+          ? { ...c, ...result.case, id: result.case._id || result.case.id }
+          : c
+      ))
+      return { success: true }
+    } catch (error) {
+      console.error('[AppContext] Error eliminando documento abogado:', error.message)
+      return { success: false, message: error.message }
+    }
   }
 
   // Tasks

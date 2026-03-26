@@ -136,3 +136,35 @@ export const updateCaseAPI = (id, updates) =>
 
 export const deleteCaseAPI = (id) =>
   apiCall(`/api/cases/${id}`, 'DELETE')
+
+// ==================== FILE UPLOADS ====================
+export const uploadPDFAPI = async (file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await fetch(`${API_URL}/api/uploads/pdf`, {
+    method: 'POST',
+    headers: {
+      ...(authToken && { Authorization: `Bearer ${authToken}` })
+    },
+    body: formData
+  })
+
+  const data = await response.json()
+  if (!response.ok) {
+    throw new Error(data.error || `Error ${response.status}`)
+  }
+  return data
+}
+
+export const addClientCaseDocumentAPI = (caseId, doc) =>
+  apiCall(`/api/cases/${caseId}/client-documents`, 'POST', doc)
+
+export const addLawyerCaseDocumentAPI = (caseId, doc) =>
+  apiCall(`/api/cases/${caseId}/lawyer-documents`, 'POST', doc)
+
+export const deleteClientCaseDocumentAPI = (caseId, docId) =>
+  apiCall(`/api/cases/${caseId}/client-documents/${docId}`, 'DELETE')
+
+export const deleteLawyerCaseDocumentAPI = (caseId, docId) =>
+  apiCall(`/api/cases/${caseId}/lawyer-documents/${docId}`, 'DELETE')

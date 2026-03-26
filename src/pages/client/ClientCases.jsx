@@ -38,30 +38,20 @@ export default function ClientCases() {
 
     setPdfError('')
     
-    // Leer el archivo como base64
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const base64Content = event.target.result
-      addClientDocument(caseId, {
-        name: file.name,
-        size: file.size,
-        type: 'application/pdf',
-        content: base64Content
-      })
-    }
-    reader.readAsDataURL(file)
+    addClientDocument(caseId, file)
     e.target.value = ''
   }
 
   const downloadDocument = (doc) => {
     try {
-      if (!doc.content) {
+      const downloadUrl = doc.url || doc.content
+      if (!downloadUrl) {
         alert('Este documento no tiene contenido para descargar')
         return
       }
 
       const link = document.createElement('a')
-      link.href = doc.content
+      link.href = downloadUrl
       link.download = doc.name
       document.body.appendChild(link)
       link.click()

@@ -67,9 +67,20 @@ export function useApp() {
 
 export function AppProvider({ children }) {
   // ⭐ PERSISTENCIA EN LOCALSTORAGE
+  const AUTH_USER_STORAGE_KEY = 'wil_auth_user'
   const USERS_STORAGE_KEY = 'wil_users_db'
   const CONVERSATIONS_STORAGE_KEY = 'wil_conversations_db'
   const MESSAGES_STORAGE_KEY = 'wil_messages_db'
+
+  const loadAuthUserFromStorage = () => {
+    try {
+      const storedUser = localStorage.getItem(AUTH_USER_STORAGE_KEY)
+      return storedUser ? JSON.parse(storedUser) : null
+    } catch (e) {
+      console.error('[AppContext] Error loading auth user:', e)
+      return null
+    }
+  }
 
   // Cargar datos guardados o usar datos iniciales
   const loadUsersFromStorage = () => {
@@ -108,7 +119,7 @@ export function AppProvider({ children }) {
     initStorageListener()
   }, [])
 
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(loadAuthUserFromStorage)
   
   // Data States
   const [users, setUsers] = useState(loadUsersFromStorage())
@@ -201,10 +212,24 @@ export function AppProvider({ children }) {
   const logout =() => {
     setAuthToken(null)
     setUser(null)
+    localStorage.removeItem(AUTH_USER_STORAGE_KEY)
     setNotifications([])
     setUnreadCount(0)
     console.log('[AppContext] Logout')
   }
+
+  // Persistir usuario autenticado para mantener sesión tras recargar
+  useEffect(() => {
+    try {
+      if (user) {
+        localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(user))
+      } else {
+        localStorage.removeItem(AUTH_USER_STORAGE_KEY)
+      }
+    } catch (e) {
+      console.error('[AppContext] Error saving auth user:', e)
+    }
+  }, [user])
 
   // ⭐ POLLING DE NOTIFICACIONES - Cada 5 segundos
   useEffect(() => {

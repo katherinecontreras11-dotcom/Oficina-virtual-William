@@ -1,0 +1,489 @@
+/* ===== EXTENDED SHARED STYLES ===== */
+
+/* Progress Bar */
+.progress-bar {
+  width: 80px;
+  height: 6px;
+  background: var(--neutral-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: middle;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+  transition: width var(--transition-slow);
+}
+.progress-text {
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+  margin-left: var(--space-2);
+}
+
+/* Table Search */
+.table-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  position: relative;
+}
+.table-search svg {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--neutral-400);
+}
+.table-search .form-input {
+  padding-left: calc(var(--space-3) + 22px);
+  min-width: 250px;
+  font-size: 0.85rem;
+}
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* fw-600 */
+.fw-600 { font-weight: 600; }
+.text-danger { color: var(--danger) !important; }
+
+/* Action Buttons */
+.action-btns {
+  display: flex;
+  gap: var(--space-1);
+}
+
+/* Document Name */
+.doc-name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.doc-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.doc-icon.bg-danger { background: var(--danger); }
+.doc-icon.bg-info { background: var(--info); }
+.doc-icon.bg-success { background: var(--success); }
+.doc-type {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--neutral-400);
+  text-transform: uppercase;
+}
+
+/* Appointments Grid */
+.appointments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-5);
+}
+
+.appointment-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.appointment-type {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.type-video { background: var(--info-light); color: #1e40af; }
+.type-presential { background: var(--success-light); color: #065f46; }
+
+.appointment-datetime {
+  display: flex;
+  gap: var(--space-6);
+  margin-bottom: var(--space-3);
+}
+.appointment-date,
+.appointment-time {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--neutral-700);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.appointment-details p {
+  font-size: 0.85rem;
+  color: var(--neutral-600);
+  margin-bottom: var(--space-1);
+}
+
+.appointment-actions {
+  display: flex;
+  gap: var(--space-2);
+  border-top: 1px solid var(--neutral-100);
+  padding-top: var(--space-4);
+}
+
+/* Messages Layout */
+.messages-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  min-height: 500px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.conv-list {
+  border-right: 1px solid var(--neutral-200);
+  overflow-y: auto;
+}
+
+.conv-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border-bottom: 1px solid var(--neutral-100);
+  position: relative;
+}
+.conv-item:hover { background: var(--neutral-50); }
+.conv-item.active { background: var(--primary-50); }
+
+.conv-avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.conv-info { flex: 1; overflow: hidden; }
+
+.conv-name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.conv-name { font-weight: 600; font-size: 0.88rem; color: var(--neutral-800); }
+.conv-time { font-size: 0.72rem; color: var(--neutral-400); }
+.conv-preview {
+  font-size: 0.8rem;
+  color: var(--neutral-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conv-unread {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary-500);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Chat */
+.chat-area {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.chat-status {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--success);
+}
+
+.chat-messages {
+  flex: 1;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow-y: auto;
+  background: var(--surface-1);
+}
+
+.chat-bubble {
+  max-width: 70%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.chat-bubble.lawyer {
+  background: var(--surface-0);
+  border: 1px solid var(--neutral-200);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+.chat-bubble.client {
+  background: var(--primary-500);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+.chat-time {
+  display: block;
+  font-size: 0.68rem;
+  margin-top: var(--space-1);
+  opacity: 0.6;
+}
+
+.chat-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--neutral-200);
+  background: var(--surface-0);
+}
+.chat-input .form-input { flex: 1; }
+
+/* Client Table */
+.client-name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.client-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background: var(--primary-100);
+  color: var(--primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+.client-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.82rem;
+  color: var(--neutral-500);
+}
+.client-contact span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Calendar Grid */
+.calendar-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-6);
+}
+
+.calendar-grid-card {
+  padding: var(--space-2);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: 50px repeat(5, 1fr);
+  gap: 1px;
+  background: var(--neutral-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.calendar-corner {
+  background: var(--surface-0);
+  padding: var(--space-2);
+}
+
+.calendar-day-header {
+  background: var(--primary-50);
+  padding: var(--space-2);
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--primary-700);
+}
+
+.calendar-hour {
+  background: var(--surface-0);
+  padding: var(--space-2);
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+  text-align: center;
+  font-weight: 500;
+}
+
+.calendar-cell {
+  background: var(--surface-0);
+  padding: var(--space-1);
+  min-height: 35px;
+  transition: background var(--transition-fast);
+}
+.calendar-cell:hover { background: var(--neutral-50); }
+
+.calendar-event {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.event-video { background: var(--info-light); color: #1e40af; }
+.event-presential { background: var(--success-light); color: #065f46; }
+.event-client { font-weight: 600; }
+.event-type {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .messages-layout {
+    grid-template-columns: 1fr;
+    min-height: 400px;
+  }
+  .conv-list {
+    border-right: none;
+    border-bottom: 1px solid var(--neutral-200);
+    max-height: 200px;
+  }
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+  .calendar-grid {
+    font-size: 0.7rem;
+  }
+  .appointments-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--surface-overlay);
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  animation: fadeIn 0.2s ease both;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: fadeInUp 0.3s ease both;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--neutral-100);
+}
+
+.modal-header h3 {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary-700);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--neutral-100);
+}
+
+/* ===== CREDENTIALS TABLE (Login) ===== */
+.credentials-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--space-3);
+  font-size: 0.82rem;
+}
+
+.credentials-table th {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  font-weight: 600;
+  color: var(--neutral-600);
+  border-bottom: 1.5px solid var(--neutral-200);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.credentials-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--neutral-100);
+  vertical-align: middle;
+}
+
+.credentials-table code {
+  font-weight: 700;
+  color: var(--primary-700);
+  background: rgba(26, 58, 92, 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.82rem;
+}

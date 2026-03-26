@@ -1,0 +1,235 @@
+/* === VIDEO CALL BUTTON STYLES === */
+
+.video-call-button-container {
+  position: relative;
+  display: inline-block;
+}
+
+.btn-video-available {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  animation: pulse-green 2s infinite;
+}
+
+.btn-video-available:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-video-available:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Estado: Unirse a llamada en curso */
+.btn-video-joining {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  animation: pulse-blue 2s infinite;
+}
+
+.btn-video-joining:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Estado: Ya estás en la llamada */
+.btn-video-active {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  cursor: pointer;
+}
+
+.btn-video-active:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Estado: Deshabilitado */
+.btn-video-disabled {
+  background: #e5e7eb;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.btn-video-disabled:hover {
+  background: #e5e7eb;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Animaciones */
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.6);
+  }
+}
+
+@keyframes pulse-blue {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.6);
+  }
+}
+
+/* Loading spinner */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tooltip */
+.video-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: #f3f4f6;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  margin-bottom: 0.5rem;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeInTooltip 0.2s ease forwards;
+}
+
+.video-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid #1f2937;
+}
+
+@keyframes fadeInTooltip {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Responsivo */
+
+/* Tablets (1024px and below) */
+@media (max-width: 1024px) {
+  .btn-video-available,
+  .btn-video-joining,
+  .btn-video-active {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .video-tooltip {
+    font-size: 0.7rem;
+    padding: 0.4rem 0.6rem;
+  }
+}
+
+/* Mobile (768px and below) */
+@media (max-width: 768px) {
+  .btn-video-available,
+  .btn-video-joining,
+  .btn-video-active,
+  .btn-video-disabled {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.8rem;
+    min-height: 40px;
+  }
+
+  .btn-video-available:hover:not(:disabled),
+  .btn-video-joining:hover:not(:disabled),
+  .btn-video-active:hover {
+    transform: translateY(-1px);
+  }
+
+  .video-tooltip {
+    font-size: 0.65rem;
+    padding: 0.35rem 0.55rem;
+    bottom: auto;
+    top: -28px;
+    margin-bottom: 0;
+  }
+
+  .video-tooltip::after {
+    top: auto;
+    bottom: -4px;
+  }
+}
+
+/* Small phones (480px and below) */
+@media (max-width: 480px) {
+  .btn-video-available,
+  .btn-video-joining,
+  .btn-video-active,
+  .btn-video-disabled {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+    min-height: 36px;
+  }
+
+  .video-call-button-container {
+    display: block;
+  }
+
+  .video-tooltip {
+    font-size: 0.6rem;
+    padding: 0.3rem 0.5rem;
+    top: -24px;
+  }
+
+  @keyframes pulse-green {
+    0%, 100% {
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+    }
+    50% {
+      box-shadow: 0 2px 12px rgba(16, 185, 129, 0.4);
+    }
+  }
+
+  @keyframes pulse-blue {
+    0%, 100% {
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    }
+    50% {
+      box-shadow: 0 2px 12px rgba(59, 130, 246, 0.4);
+    }
+  }
+}

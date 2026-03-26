@@ -1,0 +1,7 @@
+/* App-level layout styles */
+.app {
+  min-height: 100dvh;
+  width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}

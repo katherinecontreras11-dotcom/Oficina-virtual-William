@@ -37,6 +37,8 @@ import {
   addLawyerCaseDocumentAPI,
   deleteClientCaseDocumentAPI,
   deleteLawyerCaseDocumentAPI,
+  uploadAvatarAPI,
+  deleteAvatarAPI,
   setAuthToken,
   getAuthToken
 } from '../services/apiService'
@@ -66,6 +68,19 @@ const initialDB = {
 }
 
 export function AppProvider({ children }) {
+  const formatUserFromApi = (u) => ({
+    id: u?._id || u?.id,
+    role: u?.role,
+    email: u?.email,
+    name: u?.name,
+    phone: u?.phone || '',
+    avatar: u?.avatar || (u?.name ? u.name.charAt(0).toUpperCase() : 'U'),
+    avatarPublicId: u?.avatarPublicId || '',
+    bio: u?.bio || '',
+    document: u?.document || '',
+    address: u?.address || ''
+  })
+
   // ⭐ PERSISTENCIA EN LOCALSTORAGE
   const AUTH_USER_STORAGE_KEY = 'wil_auth_user'
   const USERS_STORAGE_KEY = 'wil_users_db'
@@ -260,17 +275,7 @@ export function AppProvider({ children }) {
       try {
         const result = await getUsersAPI()
         if (Array.isArray(result)) {
-          const formattedUsers = result.map((u) => ({
-            id: u._id || u.id,
-            role: u.role,
-            email: u.email,
-            name: u.name,
-            phone: u.phone || '',
-            avatar: u.avatar || (u.name ? u.name.charAt(0).toUpperCase() : '?'),
-            bio: u.bio || '',
-            document: u.document || '',
-            address: u.address || ''
-          }))
+          const formattedUsers = result.map(formatUserFromApi)
           setUsers(formattedUsers)
         }
       } catch (error) {
@@ -457,14 +462,49 @@ export function AppProvider({ children }) {
       }
       
       const result = await updateUserAPI(id, dataToUpdate)
-      setUsers(prev => prev.map(u => u.id === id ? { ...u, ...result.user } : u))
+      const updatedUser = formatUserFromApi(result.user)
+      setUsers(prev => prev.map(u => u.id === id ? { ...u, ...updatedUser } : u))
       if (user && user.id === id) {
-        setUser(prev => ({ ...prev, ...result.user }))
+        setUser(prev => ({ ...prev, ...updatedUser }))
       }
       console.log('[AppContext] Perfil actualizado:', id)
       return { success: true }
     } catch (error) {
       console.error('[AppContext] Error actualizando perfil:', error.message)
+      return { success: false, message: error.message }
+    }
+  }
+
+  const uploadAvatar = async (file) => {
+    try {
+      const result = await uploadAvatarAPI(file)
+      const updatedUser = formatUserFromApi(result.user)
+
+      setUsers(prev => prev.map(u => u.id === updatedUser.id ? { ...u, ...updatedUser } : u))
+      if (user && user.id === updatedUser.id) {
+        setUser(prev => ({ ...prev, ...updatedUser }))
+      }
+
+      return { success: true, user: updatedUser, avatar: result.avatar }
+    } catch (error) {
+      console.error('[AppContext] Error subiendo avatar:', error.message)
+      return { success: false, message: error.message }
+    }
+  }
+
+  const removeAvatar = async () => {
+    try {
+      const result = await deleteAvatarAPI()
+      const updatedUser = formatUserFromApi(result.user)
+
+      setUsers(prev => prev.map(u => u.id === updatedUser.id ? { ...u, ...updatedUser } : u))
+      if (user && user.id === updatedUser.id) {
+        setUser(prev => ({ ...prev, ...updatedUser }))
+      }
+
+      return { success: true, user: updatedUser }
+    } catch (error) {
+      console.error('[AppContext] Error eliminando avatar:', error.message)
       return { success: false, message: error.message }
     }
   }
@@ -824,7 +864,7 @@ export function AppProvider({ children }) {
 
   return (
     <AppContext.Provider value={{
-      user, login, logout, registerUser, updateProfile, deleteUser,
+      user, login, logout, registerUser, updateProfile, uploadAvatar, removeAvatar, deleteUser,
       users, cases, setCases, tasks, appointments, conversations, messages, documents,
       sendMessage, editMessage, deleteMessages,
       addAppointment, updateAppointment, deleteAppointment, startCall, endCall, joinCall, updateCallTiming,

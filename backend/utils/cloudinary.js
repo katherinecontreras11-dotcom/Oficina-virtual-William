@@ -75,3 +75,48 @@ export const getSignedPdfUrl = (publicId, { attachment = false, expiresInSeconds
     expires_at: expiresAt
   })
 }
+
+export const uploadAvatarBuffer = (buffer, userId) => {
+  return new Promise((resolve, reject) => {
+    try {
+      configureCloudinary()
+    } catch (error) {
+      return reject(error)
+    }
+
+    if (!userId) {
+      return reject(new Error('userId es requerido para subir avatar'))
+    }
+
+    const folder = process.env.CLOUDINARY_AVATAR_FOLDER || 'wil-law-firm/avatars'
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: 'image',
+        public_id: `avatar-${userId}`,
+        overwrite: true,
+        invalidate: true,
+        transformation: [
+          { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+          { quality: 'auto', fetch_format: 'auto' }
+        ]
+      },
+      (error, result) => {
+        if (error) return reject(error)
+        resolve(result)
+      }
+    )
+
+    streamifier.createReadStream(buffer).pipe(uploadStream)
+  })
+}
+
+export const deleteImageFromCloudinary = async (publicId) => {
+  if (!publicId) return
+  try {
+    configureCloudinary()
+    await cloudinary.uploader.destroy(publicId, { resource_type: 'image' })
+  } catch (error) {
+    console.error('[Cloudinary] Error deleting image:', error.message)
+  }
+}

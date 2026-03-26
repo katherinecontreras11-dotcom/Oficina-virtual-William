@@ -4,16 +4,19 @@ import { Save, Camera, User, Mail, Phone, MapPin, FileText, X, Shield, Briefcase
 import './client/Dashboard.css'
 
 export default function Profile() {
-  const { user, updateProfile, cases } = useApp()
+  const { user, updateProfile, uploadAvatar, removeAvatar, cases } = useApp()
   const [isEditing, setIsEditing] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [avatarError, setAvatarError] = useState('')
+  const [avatarUploading, setAvatarUploading] = useState(false)
   const [formData, setFormData] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
     document: user?.document || '',
     address: user?.address || '',
     bio: user?.bio || '',
-    avatar: user?.avatar || ''
+    avatar: user?.avatar || '',
+    avatarPublicId: user?.avatarPublicId || ''
   })
 
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar || '')
@@ -27,7 +30,8 @@ export default function Profile() {
         document: user.document || '',
         address: user.address || '',
         bio: user.bio || '',
-        avatar: user.avatar || ''
+        avatar: user.avatar || '',
+        avatarPublicId: user.avatarPublicId || ''
       })
       setAvatarPreview(user.avatar || '')
     }
@@ -37,16 +41,64 @@ export default function Profile() {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result)
-        setFormData(prev => ({ ...prev, avatar: reader.result }))
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+
+    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp']
+    const maxSize = 2 * 1024 * 1024
+
+    if (!allowedMimes.includes(file.type)) {
+      setAvatarError('Formato no permitido. Usa JPG, PNG o WEBP')
+      e.target.value = ''
+      return
     }
+
+    if (file.size > maxSize) {
+      setAvatarError('El avatar no debe superar 2MB')
+      e.target.value = ''
+      return
+    }
+
+    setAvatarError('')
+    setAvatarUploading(true)
+    const result = await uploadAvatar(file)
+    setAvatarUploading(false)
+
+    if (!result.success) {
+      setAvatarError(result.message || 'No se pudo subir el avatar')
+      e.target.value = ''
+      return
+    }
+
+    const updatedAvatar = result.user?.avatar || ''
+    setAvatarPreview(updatedAvatar)
+    setFormData(prev => ({
+      ...prev,
+      avatar: updatedAvatar,
+      avatarPublicId: result.user?.avatarPublicId || ''
+    }))
+    e.target.value = ''
+  }
+
+  const handleDeleteAvatar = async () => {
+    setAvatarError('')
+    setAvatarUploading(true)
+    const result = await removeAvatar()
+    setAvatarUploading(false)
+
+    if (!result.success) {
+      setAvatarError(result.message || 'No se pudo eliminar el avatar')
+      return
+    }
+
+    const updatedAvatar = result.user?.avatar || ''
+    setAvatarPreview(updatedAvatar)
+    setFormData(prev => ({
+      ...prev,
+      avatar: updatedAvatar,
+      avatarPublicId: ''
+    }))
   }
 
   const handleSubmit = (e) => {
@@ -65,9 +117,11 @@ export default function Profile() {
       document: user?.document || '',
       address: user?.address || '',
       bio: user?.bio || '',
-      avatar: user?.avatar || ''
+        avatar: user?.avatar || '',
+        avatarPublicId: user?.avatarPublicId || ''
     })
     setAvatarPreview(user?.avatar || '')
+      setAvatarError('')
     setIsEditing(false)
   }
 
@@ -215,6 +269,25 @@ export default function Profile() {
               <p style={{ marginTop: '0.5rem', color: 'var(--gray-500)', fontSize: '0.875rem' }}>
                 Clic en la imagen para cambiar
               </p>
+              {avatarUploading && (
+                <p style={{ marginTop: '0.35rem', color: 'var(--primary-700)', fontSize: '0.85rem', fontWeight: 600 }}>
+                  Subiendo avatar...
+                </p>
+              )}
+              {avatarError && (
+                <p style={{ marginTop: '0.35rem', color: '#ef4444', fontSize: '0.85rem', fontWeight: 600 }}>
+                  {avatarError}
+                </p>
+              )}
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleDeleteAvatar}
+                disabled={avatarUploading}
+                style={{ marginTop: '0.8rem' }}
+              >
+                Eliminar foto
+              </button>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>

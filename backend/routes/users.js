@@ -82,11 +82,20 @@ router.post('/', verifyToken, verifyAdmin, async (req, res) => {
 // PUT /api/users/:id - Actualizar usuario
 router.put('/:id', verifyToken, async (req, res) => {
   try {
-    const { name, phone, password } = req.body
+    if (req.user.role !== 'admin' && String(req.user.id) !== String(req.params.id)) {
+      return res.status(403).json({ error: 'No autorizado para actualizar este usuario' })
+    }
+
+    const { name, phone, password, bio, document, address, avatar, avatarPublicId } = req.body
     const updateData = {}
     
-    if (name) updateData.name = name
-    if (phone) updateData.phone = phone
+    if (name !== undefined) updateData.name = name
+    if (phone !== undefined) updateData.phone = phone
+    if (bio !== undefined) updateData.bio = bio
+    if (document !== undefined) updateData.document = document
+    if (address !== undefined) updateData.address = address
+    if (avatar !== undefined) updateData.avatar = avatar
+    if (avatarPublicId !== undefined) updateData.avatarPublicId = avatarPublicId
     if (password) updateData.password = password
     
     const user = await User.findByIdAndUpdate(
@@ -94,6 +103,10 @@ router.put('/:id', verifyToken, async (req, res) => {
       updateData,
       { new: true, select: '-password' }
     )
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' })
+    }
     
     console.log(`[Users] Usuario actualizado: ${user.email}`)
     

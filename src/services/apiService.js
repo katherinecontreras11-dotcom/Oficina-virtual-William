@@ -157,6 +157,40 @@ export const uploadPDFAPI = async (file) => {
   return data
 }
 
+export const uploadAvatarAPI = async (file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await fetch(`${API_URL}/api/uploads/avatar`, {
+    method: 'POST',
+    headers: {
+      ...(authToken && { Authorization: `Bearer ${authToken}` })
+    },
+    body: formData
+  })
+
+  const data = await response.json()
+  if (!response.ok) {
+    throw new Error(data.error || `Error ${response.status}`)
+  }
+  return data
+}
+
+export const deleteAvatarAPI = async () => {
+  const response = await fetch(`${API_URL}/api/uploads/avatar`, {
+    method: 'DELETE',
+    headers: {
+      ...(authToken && { Authorization: `Bearer ${authToken}` })
+    }
+  })
+
+  const data = await response.json()
+  if (!response.ok) {
+    throw new Error(data.error || `Error ${response.status}`)
+  }
+  return data
+}
+
 export const getSignedPdfLinkAPI = (publicId, attachment = false) =>
   apiCall(`/api/uploads/pdf-link?publicId=${encodeURIComponent(publicId)}&attachment=${attachment}`, 'GET')
 

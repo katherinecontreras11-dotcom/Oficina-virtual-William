@@ -104,4 +104,33 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 })
 
+// DELETE /api/messages/:id
+router.delete('/:id', verifyToken, async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.id)
+    if (!message) {
+      return res.status(404).json({ error: 'Mensaje no encontrado' })
+    }
+
+    // Verificar que el usuario sea propietario del mensaje o admin
+    const conversation = await Conversation.findById(message.conversationId)
+    const requesterId = String(req.user.id)
+    const isLawyer = requesterId === String(conversation.lawyerId)
+    const isClient = requesterId === String(conversation.clientId)
+
+    if (!isLawyer && !isClient) {
+      return res.status(403).json({ error: 'No autorizado para eliminar este mensaje' })
+    }
+
+    await Message.findByIdAndDelete(req.params.id)
+    
+    console.log(`[Messages] Mensaje eliminado: ${req.params.id}`)
+    
+    res.json({ success: true, message: 'Mensaje eliminado' })
+  } catch (error) {
+    console.error('[Messages] Error eliminando:', error.message)
+    res.status(500).json({ error: error.message })
+  }
+})
+
 export default router

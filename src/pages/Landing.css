@@ -587,7 +587,8 @@
 
   .hero {
     margin-top: var(--navbar-height);
-    min-height: calc(100dvh - var(--navbar-height));
+    min-height: calc(100vh - var(--navbar-height));
+    min-height: calc(100svh - var(--navbar-height));
     padding: var(--space-8) 0;
     width: 100%;
     overflow-x: hidden;
@@ -743,7 +744,8 @@
 
   .hero {
     margin-top: var(--navbar-height);
-    min-height: calc(100dvh - var(--navbar-height));
+    min-height: calc(100vh - var(--navbar-height));
+    min-height: calc(100svh - var(--navbar-height));
     padding: var(--space-6) 0;
     width: 100%;
   }
